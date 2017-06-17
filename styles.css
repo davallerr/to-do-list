@@ -1,4 +1,4 @@
-
+/* to-do list web app */
 
 @import url('https://fonts.googleapis.com/css?family=Lato:100,300,400');
 
@@ -36,25 +36,90 @@ input {
 }
 
 .add-task__field {
+  position: relative;
   background: #555;
   margin: 1rem auto;
-  max-width: 40rem;
-  padding: .3rem .2rem .6rem .2rem;
+  max-width: 50rem;
+  padding: .4rem .2rem;
 }
 
 #add-task--btn {
+  position: relative;
   border-radius: 100%;
   color: #fff;
   font-size: 1.5em;
   height: 2rem;
   margin: 0;
-  padding: .3rem .5rem .6rem .3rem;
+  padding: .5rem .5rem .6rem .5rem;
   width: 2rem;
 }
+
+#add-task--btn span {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -58%);
+}
+
+#add-task--btn:hover {
+  transform: rotate(360deg);
+  transition: transform .5s;
+  background: #57B55E;
+  box-shadow: 0 0 .5rem #444;
+}
+
+#add-task--btn:active { top: .1rem; }
 
 #add-task--input {
   color: #fff;
   font-size: 1.5em;
   font-weight: 200;
-  margin: 0;
+  letter-spacing: .1rem;
+  width: 95%;
+  margin-left: .2rem;
 }
+
+.list {
+  margin: 0 auto;
+  max-width: 50rem;
+
+}
+
+.task {
+  background: #fff;
+  margin: .2rem 0;
+  padding: .7rem .5rem .8rem .5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.task:hover {
+  z-index: 500;
+  box-shadow: 0 .1rem .8rem #000;
+  background: #eee;
+}
+
+.task__delete {
+  margin-top: .1rem;
+  position: absolute;
+  top: 48%;
+  transform: translateY(-50%);
+  transition: right .6s;
+  right: -3rem;
+}
+
+.task:hover .task__delete {
+  right: .6rem;
+  transition:  right .6s;
+}
+
+.task__delete--btn {
+  color: #CC0D00;
+  padding: .3rem .3rem .4rem .3rem;
+}
+
+.task__delete--btn:hover {
+  background: #fff;
+}
+
+.task__delete--btn:active { background: #CC0D00; color: #fff; }
