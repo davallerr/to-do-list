@@ -6,18 +6,23 @@
 var tasksController = (function() {
 
   // prototype task object
-  var Task = function(id, list, description, due) {
-    this.id = id,
-    this.list = list,
+  var Task = function(date, description, id, list) {
+    this.date = date,
     this.description = description,
-    this.date = date
+    this.id = id,
+    this.list = list
   };
 
-  // calculate current date
-  Task.prototype.getDate = function() {
+  var data = {
+    allTasks: [],
+    lists: [],
+    idBank: 0
+  }
+
+  var setDate = function() {
     var date, dd, mm, yyyy;
 
-    date = new Date();
+    var today = new Date();
     dd = today.getDate();
     mm = today.getMonth() + 1;
     yyyy = today.getFullYear();
@@ -26,52 +31,44 @@ var tasksController = (function() {
     if(mm < 10) { mm = '0' + mm; }
 
     date = mm + '/' + dd + '/' + yyyy;
+    return date;
   }
 
-  var data = {
-    allTasks: [],
-    lists: []
-  }
-
+  // RETURNED PUBLIC FUNCTIONS
   return {
 
-    addTask: function(list, des, date) {
-      var newTask, ID;
+    addTask: function(des, list) {
+      var date, id, newTask;
 
-      if (data.allTasks.length > 0) {
-        ID = data.allTasks[data.allTasks.length - 1].id + 1;
-      } else {
-        ID = 0;
-      }
+      date = setDate();
+      id = data.idBank + 1;
+      newTask = new Task(date, des, id, list);
 
-      newTask = Task(ID, list, des, date);
-
-      data.allTasks.push(newItem);
-      return newItem;
+      data.allTasks.push(newTask);
+      console.log(newTask);
+      data.idBank++;
+      return newTask;
     },
 
-    // budgety delete to cannibalize
-    /*
-    deleteItem: function(type, id) {
+    deleteTask: function(id) {
       var ids, index;
 
-      ids = data.allItems[type].map(function(current) {
+      ids = data.allTasks.map(function(current) {
         return current.id;
       });
 
       index = ids.indexOf(id);
 
-      if (index !== -1) {
-        data.allItems[type].splice(index, 1);
+      if(index !== -1) {
+        data.allTasks.splice(index, 1);
       }
     },
-    */
 
     testing: function() {
       console.log(data);
     }
 
-  }
+  };
 
 })();
 
@@ -81,13 +78,119 @@ var tasksController = (function() {
 ////////////////////////////////////////////////
 var UIController = (function() {
 
+  var DOMstrings = {
+    currentList: '.top__list-current',
+    inputDescription: '.add-task--input',
+    addTaskBtn: '.add-task--btn',
+    tasksList: '.tasks-list'
+  }
+
+  // RETURNED PUBLIC FUNCTIONS
+  return {
+
+    getInput: function() {
+      return {
+        list: document.querySelector(DOMstrings.currentList).innerHTML,
+        description: document.querySelector(DOMstrings.inputDescription).value
+      };
+    },
+
+    addListTask: function(obj) {
+      var element, html, newHtml;
+
+      element = DOMstrings.tasksList;
+
+      // create html with placeholder
+      html = "<div id='task-%id%' class='task'><div class='task__description'>%description%</div><div class='task__date'>%date%</div><div class='task__delete'><button class='task__delete--btn'>delete</button></div></div>";
+
+      // replace placeholder
+      newHtml = html.replace('%date%', obj.date);
+      newHtml = newHtml.replace('%description%', obj.description);
+      newHtml = newHtml.replace('%id%', obj.id);
+
+      // insert html into dom
+      document.querySelector(element).insertAdjacentHTML('beforeend', newHtml);
+    },
+
+    clearInput: function() {
+      document.querySelector(DOMstrings.inputDescription).value = '';
+      document.querySelector(DOMstrings.inputDescription).focus();
+    },
+
+    deleteListTask: function(selectorID) {
+      var el = document.getElementById(selectorID);
+      el.parentNode.removeChild(el);
+    },
+
+    getDOMstrings: function() {
+      return DOMstrings;
+    }
+
+  };
+
 })();
 
 
 ////////////////////////////////////////////////
 // APP CONTROLLER
 ////////////////////////////////////////////////
-var controller = (function(taskCtrl, UICtrl) {
+var controller = (function(tasksCtrl, UICtrl) {
+
+  var setupListeners = function() {
+    var DOM = UICtrl.getDOMstrings();
+
+    document.querySelector(DOM.addTaskBtn).addEventListener('click', ctrlAddTask);
+
+    document.addEventListener('keypress', function(event) {
+      if (event.keyCode === 13 || event.which === 13) {
+        ctrlAddTask();
+      }
+    });
+
+    document.querySelector(DOM.tasksList).addEventListener('click', ctrlDeleteTask);
+  };
+
+  var ctrlAddTask = function() {
+    var input, newTask;
+
+    // get input data
+    input = UICtrl.getInput();
+
+    if(input.description) {
+      // add task to tasks controller
+      newTask = tasksCtrl.addTask(input.description, input.list);
+
+      // add item to list UI and clear input
+      UICtrl.addListTask(newTask);
+      UICtrl.clearInput();
+    }
+  };
+
+  var ctrlDeleteTask = function(event) {
+    var splitID, taskID, id;
+
+    taskID = event.target.parentNode.parentNode.id;
+
+    if(taskID) {
+      splitID = taskID.split('-');
+      id = parseInt(splitID[1]);
+      // delete task from data
+      tasksCtrl.deleteTask(id);
+      // delete task from ui
+      UICtrl.deleteListTask(taskID);
+    }
+  };
+
+  // RETURNED PUBLIC FUNCTIONS
+  return {
+
+    init: function() {
+      console.log('init');
+      setupListeners();
+      document.querySelector('.add-task--input').focus();
+    }
+
+  }
 
 })(tasksController, UIController);
 

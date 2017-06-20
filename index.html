@@ -13,27 +13,39 @@
 
 
     <div class='top'>
-      <div class='top__list current-list'><h1>Current List</h1></div>
-      <div class='add-task'>
-        <div class='add-task__field'>
-          <button id='add-task--btn'><span>&plus;</span></button>
-          <input id='add-task--input' placeholder='add new task'></input>
+
+      <h1 class='top__header'>Ta-Da List</h1>
+
+      <div class='container--top__nav'>
+        <h2 class='top__list-current'>All Tasks</h2>
+        <div class='top__navbar'>
+          <select class='top__list-select'>
+            <option class='top__list-option'>All Tasks</option>
+            <option class='top__list-option' class='add-list'>+ Create a new list</option>
+          </select>
+          <button class='top__list-delete--btn'>Delete List</button>
         </div>
       </div>
+
+      <div class='add-task'>
+        <div class='add-task__field'>
+          <button class='add-task--btn'><span>&plus;</span></button>
+          <input class='add-task--input' placeholder='add new task'></input>
+        </div>
+      </div>
+
     </div>
 
 
-    <div class='list'>
+    <div class='tasks-list'>
 
+      <!-- example task item
       <div id='task-0' class='task'>
         <div class='task__description'>task description</div>
+        <div class='task__date'>xx/xx/xxxx</div>
         <div class='task__delete'><button class='task__delete--btn'>delete</button></div>
       </div>
-
-      <div id='task-1' class='task'>
-        <div class='task__description'>task description</div>
-        <div class='task__delete'><button class='task__delete--btn'>delete</button></div>
-      </div>
+      -->
 
     </div>
 
