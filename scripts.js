@@ -19,7 +19,7 @@ var tasksController = (function() {
       'All Tasks': []
     },
     idBank: 0
-  }
+  };
 
   var setDate = function() {
     var date, dd, mm, yyyy;
@@ -34,7 +34,7 @@ var tasksController = (function() {
 
     date = mm + '/' + dd + '/' + yyyy;
     return date;
-  }
+  };
 
   // RETURNED PUBLIC FUNCTIONS
   return {
@@ -68,9 +68,21 @@ var tasksController = (function() {
     },
 
     addList: function(newList) {
+      console.log('tasksController.addList: ' + newList);
 
-      data.lists.newList = [];
+      data.lists[newList] = [];
       return newList;
+    },
+
+    checkList: function(id) {
+      // take task id and return that task's list property
+      var task;
+
+      task = data.allTasks.filter(function(current) {
+        return current.id === id;
+      });
+
+      return task[0].list;
     },
 
     testing: function() {
@@ -88,12 +100,15 @@ var tasksController = (function() {
 var UIController = (function() {
 
   var DOMstrings = {
-    currentList: '.top__list-current',
-    inputDescription: '.add-task--input',
+    addList: '.top__list-add--btn',
     addTaskBtn: '.add-task--btn',
-    tasksList: '.tasks-list',
-    addList: '.add-list',
-    listSelect: '.top__list-select'
+    currentList: '.top__list-current',
+    deleteList: '.top__list-delete--btn',
+    inputDescription: '.add-task--input',
+    listSelect: '.top__list-select',
+    listOption: '.top__list-option',
+    taskItem: '.task',
+    tasksList: '.tasks-list'
   }
 
   // RETURNED PUBLIC FUNCTIONS
@@ -135,8 +150,11 @@ var UIController = (function() {
 
     getNewList: function() {
       var newList;
+
       // get list name from prompt
       newList = prompt('name your new list');
+
+      console.log(newList);
 
       return newList;
     },
@@ -145,11 +163,19 @@ var UIController = (function() {
       var html, newHtml;
 
       html = "<option class='top__list-option'>%list%</option>";
-
       newHtml = html.replace('%list%', newList);
 
       document.querySelector(DOMstrings.listSelect).insertAdjacentHTML('beforeend', newHtml);
-    }
+    },
+
+    setList: function(selectedList) {
+
+      document.querySelector(DOMstrings.currentList).textContent = selectedList;
+      //
+      //
+      //
+
+    },
 
     getDOMstrings: function() {
       return DOMstrings;
@@ -177,8 +203,8 @@ var controller = (function(tasksCtrl, UICtrl) {
     });
 
     document.querySelector(DOM.tasksList).addEventListener('click', ctrlDeleteTask);
-
     document.querySelector(DOM.addList).addEventListener('click', ctrlAddList);
+    document.querySelector(DOM.listSelect).addEventListener('change', ctrlSetList);
   };
 
   var ctrlAddTask = function() {
@@ -190,7 +216,6 @@ var controller = (function(tasksCtrl, UICtrl) {
     if(input.description) {
       // add task to tasks controller
       newTask = tasksCtrl.addTask(input.description, input.list);
-
       // add item to list UI and clear input
       UICtrl.addListTask(newTask);
       UICtrl.clearInput();
@@ -215,8 +240,8 @@ var controller = (function(tasksCtrl, UICtrl) {
   var ctrlAddList = function() {
     var input, newList;
 
+    // get input for new list
     input = UICtrl.getNewList();
-
     // check for new list input
     if(input) {
       // add list to data
@@ -224,7 +249,47 @@ var controller = (function(tasksCtrl, UICtrl) {
       // add list to ui
       UICtrl.addListOption(newList);
     }
-  }
+  };
+
+  var ctrlSetList = function() {
+    var DOM, listSelector, selectedList, tasks;
+
+    DOM = UICtrl.getDOMstrings();
+    listSelector = document.querySelector(DOM.listSelect);
+    selectedList = listSelector.options[listSelector.selectedIndex].value;
+
+    // set list header in ui
+    UICtrl.setList(selectedList);
+
+    // identify tasks with selected list
+    // change display of each task to block/none depending on if its list matches filter
+    // get id of task
+    // check data structure if task list matches filter
+    // change display
+
+    tasks = document.querySelectorAll(DOM.taskItem);
+
+    for(var i=0; i<tasks.length; i++) {
+      var tagID, splitID, id;
+
+      tagID = tasks[i].id;
+      splitID = tagID.split('-');
+      id = parseInt(splitID[1]);
+
+      taskList = tasksCtrl.checkList(id);
+
+      if(taskList === selectedList) {
+        tasks[i].style.display = 'block';
+      } else if(selectedList === 'All Tasks') {
+        tasks[i].style.display = 'block';
+      } else {
+        tasks[i].style.display = 'none';
+      }
+    }
+
+    // filter tasks shown in ui
+
+  };
 
   // RETURNED PUBLIC FUNCTIONS
   return {

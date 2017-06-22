@@ -62,12 +62,13 @@ select {
 }
 
 .top__list-select {
+  border: 1px solid #C0FFEE;
   border-radius: .4rem;
   color: #C0FFEE;
   font-size: 1rem;
-  border: 1px solid #C0FFEE;
-  padding: .4rem 1rem;
+  margin-right: .5rem;
   min-width: 10em;
+  padding: .4rem 1rem;
   text-align: center;
 }
 
@@ -79,14 +80,25 @@ select {
   color: #C0FFEE;
 }
 
-.top__list-delete--btn {
-  color: #DEC0DE;
-  margin-left: .5rem;
+.top__list-add--btn {
+  color: #C0FFEE;
+  margin: 0 0 0 .5rem;
   padding: .4rem;
   position: relative;
 }
 
-.top__list-delete--btn        { background: none;     color: #ccc; }
+.top__list-add--btn        { background: none;     color: #C0FFEE; }
+.top__list-add--btn:hover  { background: #C0FFEE;  color: #fff; }
+.top__list-add--btn:active { background: #70FFEE;  color: #fff; top: 1px; }
+
+.top__list-delete--btn {
+  color: #DEC0DE;
+  margin: 0 0 0 .5rem;
+  padding: .4rem;
+  position: relative;
+}
+
+.top__list-delete--btn        { background: none;     color: #DEC0DE; }
 .top__list-delete--btn:hover  { background: #DEC0DE;  color: #fff; }
 .top__list-delete--btn:active { background: #CEA5ED;  color: #fff; top: 1px; }
 
@@ -143,10 +155,11 @@ select {
 
 .task {
   background: #fff;
+  display: block;
   margin: .2rem 0;
+  overflow: hidden;
   padding: .7rem .5rem .8rem .5rem;
   position: relative;
-  overflow: hidden;
 }
 
 .task__description {
