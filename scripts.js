@@ -15,7 +15,9 @@ var tasksController = (function() {
 
   var data = {
     allTasks: [],
-    lists: [],
+    lists: {
+      'All Tasks': []
+    },
     idBank: 0
   }
 
@@ -45,6 +47,7 @@ var tasksController = (function() {
       newTask = new Task(date, des, id, list);
 
       data.allTasks.push(newTask);
+      data.lists[list].push(newTask);
       console.log(newTask);
       data.idBank++;
       return newTask;
@@ -62,6 +65,12 @@ var tasksController = (function() {
       if(index !== -1) {
         data.allTasks.splice(index, 1);
       }
+    },
+
+    addList: function(newList) {
+
+      data.lists.newList = [];
+      return newList;
     },
 
     testing: function() {
@@ -82,7 +91,9 @@ var UIController = (function() {
     currentList: '.top__list-current',
     inputDescription: '.add-task--input',
     addTaskBtn: '.add-task--btn',
-    tasksList: '.tasks-list'
+    tasksList: '.tasks-list',
+    addList: '.add-list',
+    listSelect: '.top__list-select'
   }
 
   // RETURNED PUBLIC FUNCTIONS
@@ -122,6 +133,24 @@ var UIController = (function() {
       el.parentNode.removeChild(el);
     },
 
+    getNewList: function() {
+      var newList;
+      // get list name from prompt
+      newList = prompt('name your new list');
+
+      return newList;
+    },
+
+    addListOption: function(newList) {
+      var html, newHtml;
+
+      html = "<option class='top__list-option'>%list%</option>";
+
+      newHtml = html.replace('%list%', newList);
+
+      document.querySelector(DOMstrings.listSelect).insertAdjacentHTML('beforeend', newHtml);
+    }
+
     getDOMstrings: function() {
       return DOMstrings;
     }
@@ -148,6 +177,8 @@ var controller = (function(tasksCtrl, UICtrl) {
     });
 
     document.querySelector(DOM.tasksList).addEventListener('click', ctrlDeleteTask);
+
+    document.querySelector(DOM.addList).addEventListener('click', ctrlAddList);
   };
 
   var ctrlAddTask = function() {
@@ -180,6 +211,20 @@ var controller = (function(tasksCtrl, UICtrl) {
       UICtrl.deleteListTask(taskID);
     }
   };
+
+  var ctrlAddList = function() {
+    var input, newList;
+
+    input = UICtrl.getNewList();
+
+    // check for new list input
+    if(input) {
+      // add list to data
+      newList = tasksCtrl.addList(input);
+      // add list to ui
+      UICtrl.addListOption(newList);
+    }
+  }
 
   // RETURNED PUBLIC FUNCTIONS
   return {
