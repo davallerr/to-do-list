@@ -13,14 +13,17 @@ var tasksController = (function() {
     this.list = list
   };
 
+  // data object housing all task information
   var data = {
     allTasks: [],
     lists: {
       'All Tasks': []
     },
+    // id bank so every task has unique id, even when tasks are deleted
     idBank: 0
   };
 
+  // function to return date at time called
   var setDate = function() {
     var date, dd, mm, yyyy;
 
@@ -42,28 +45,34 @@ var tasksController = (function() {
     addTask: function(des, list) {
       var date, id, newTask;
 
+      // get date of task creation
       date = setDate();
       id = data.idBank + 1;
       newTask = new Task(date, des, id, list);
 
+      // push task to allTasks array and list-specific array
       data.allTasks.push(newTask);
       data.lists[list].push(newTask);
-      console.log(newTask);
+
       data.idBank++;
       return newTask;
     },
 
     deleteTask: function(id) {
-      var ids, index;
+      var ids, index, list;
 
       ids = data.allTasks.map(function(current) {
         return current.id;
       });
 
       index = ids.indexOf(id);
+      //list = data.allTasks[index].list;
 
+      // need to delete from allTasks as well as specific list in data
+      
       if(index !== -1) {
         data.allTasks.splice(index, 1);
+        //data.allTasks[list]
       }
     },
 
@@ -261,23 +270,22 @@ var controller = (function(tasksCtrl, UICtrl) {
     // set list header in ui
     UICtrl.setList(selectedList);
 
-    // identify tasks with selected list
-    // change display of each task to block/none depending on if its list matches filter
-    // get id of task
-    // check data structure if task list matches filter
-    // change display
-
     tasks = document.querySelectorAll(DOM.taskItem);
 
+    // loop through each task element
     for(var i=0; i<tasks.length; i++) {
       var tagID, splitID, id;
 
+      // pull id from task
       tagID = tasks[i].id;
       splitID = tagID.split('-');
       id = parseInt(splitID[1]);
 
+      // identify list of task
       taskList = tasksCtrl.checkList(id);
 
+      // display if matches list, hide if not
+      // should be ui function, but has to pass tasks[i] variable somehow
       if(taskList === selectedList) {
         tasks[i].style.display = 'block';
       } else if(selectedList === 'All Tasks') {
@@ -286,8 +294,6 @@ var controller = (function(tasksCtrl, UICtrl) {
         tasks[i].style.display = 'none';
       }
     }
-
-    // filter tasks shown in ui
 
   };
 
