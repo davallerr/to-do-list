@@ -1,7 +1,9 @@
 // to-do list web app
 
 ////////////////////////////////////////////////
+////////////////////////////////////////////////
 // TASKS CONTROLLER
+////////////////////////////////////////////////
 ////////////////////////////////////////////////
 var tasksController = (function() {
 
@@ -54,31 +56,33 @@ var tasksController = (function() {
       data.allTasks.push(newTask);
       data.lists[list].push(newTask);
 
+      // iterate data id bank
       data.idBank++;
+
       return newTask;
     },
 
     deleteTask: function(id) {
-      var ids, index, list;
+      var allTasksIndex, ids, list, listIndex, listIndexes;
 
-      ids = data.allTasks.map(function(current) {
-        return current.id;
-      });
+      // create allTasks indexes based off of task id
+      ids = data.allTasks.map(function(current) { return current.id; });
+      allTasksIndex = ids.indexOf(id);
 
-      index = ids.indexOf(id);
-      //list = data.allTasks[index].list;
+      if(allTasksIndex !== -1) {
+        list = data.allTasks[allTasksIndex].list;
 
-      // need to delete from allTasks as well as specific list in data
-      
-      if(index !== -1) {
-        data.allTasks.splice(index, 1);
-        //data.allTasks[list]
+        // create specific list indexes based off of task id
+        listIndexes = data.lists[list].map(function(current) { return current.id; });
+        listIndex = listIndexes.indexOf(id);
+
+        // delete task from allTasks and specific list arrays
+        data.allTasks.splice(allTasksIndex, 1);
+        data.lists[list].splice(listIndex, 1);
       }
     },
 
     addList: function(newList) {
-      console.log('tasksController.addList: ' + newList);
-
       data.lists[newList] = [];
       return newList;
     },
@@ -94,6 +98,42 @@ var tasksController = (function() {
       return task[0].list;
     },
 
+    deleteList: function(currentList) {
+      var confirmListDelete, removeIDs, removeIndexes, removeTasks;
+
+      // WHAAAYAATATATEAOUDHEIOUHEOIUHE
+      /*
+      // can't delete All Tasks list
+      if(currentList !== 'All Tasks') {
+        confirmListDelete = confirm('delete this list and all tasks therein?');
+
+        if(confirm) {
+          // delete currentList in data
+          delete data.lists[currentList];
+
+          removeTasks = data.allTasks.map(function(item) {
+            if(item.list === currentList) {
+              return item.id;
+            }
+          });
+
+          console.log(removeTasks);
+
+          for(var i=removeTasks.length; i>=0; i--) {
+            var removeIndex;
+
+            if(removeTasks[i]) {
+              removeIndex = removeTasks.indexOf(i);
+              data.allTasks.splice(removeIndex, 1);
+            }
+          }
+
+
+        }
+      }
+      */
+    },
+
     testing: function() {
       console.log(data);
     }
@@ -104,15 +144,17 @@ var tasksController = (function() {
 
 
 ////////////////////////////////////////////////
+////////////////////////////////////////////////
 // UI CONTROLLER
+////////////////////////////////////////////////
 ////////////////////////////////////////////////
 var UIController = (function() {
 
   var DOMstrings = {
-    addList: '.top__list-add--btn',
+    addListBtn: '.top__list-add--btn',
     addTaskBtn: '.add-task--btn',
     currentList: '.top__list-current',
-    deleteList: '.top__list-delete--btn',
+    deleteListBtn: '.top__list-delete--btn',
     inputDescription: '.add-task--input',
     listSelect: '.top__list-select',
     listOption: '.top__list-option',
@@ -159,12 +201,7 @@ var UIController = (function() {
 
     getNewList: function() {
       var newList;
-
-      // get list name from prompt
       newList = prompt('name your new list');
-
-      console.log(newList);
-
       return newList;
     },
 
@@ -177,13 +214,22 @@ var UIController = (function() {
       document.querySelector(DOMstrings.listSelect).insertAdjacentHTML('beforeend', newHtml);
     },
 
-    setList: function(selectedList) {
-
+    setListHeader: function(selectedList) {
       document.querySelector(DOMstrings.currentList).textContent = selectedList;
-      //
-      //
-      //
+    },
 
+    filterTaskDisplay: function(taskList, selectedList, checkTask) {
+      if(taskList === selectedList) {
+        checkTask.style.display = 'block';
+      } else if(selectedList === 'All Tasks') {
+        checkTask.style.display = 'block';
+      } else {
+        checkTask.style.display = 'none';
+      }
+    },
+
+    getCurrentList: function() {
+      return document.querySelector(DOMstrings.currentList).textContent;
     },
 
     getDOMstrings: function() {
@@ -194,9 +240,10 @@ var UIController = (function() {
 
 })();
 
-
+////////////////////////////////////////////////
 ////////////////////////////////////////////////
 // APP CONTROLLER
+////////////////////////////////////////////////
 ////////////////////////////////////////////////
 var controller = (function(tasksCtrl, UICtrl) {
 
@@ -212,8 +259,9 @@ var controller = (function(tasksCtrl, UICtrl) {
     });
 
     document.querySelector(DOM.tasksList).addEventListener('click', ctrlDeleteTask);
-    document.querySelector(DOM.addList).addEventListener('click', ctrlAddList);
+    document.querySelector(DOM.addListBtn).addEventListener('click', ctrlAddList);
     document.querySelector(DOM.listSelect).addEventListener('change', ctrlSetList);
+    document.querySelector(DOM.deleteListBtn).addEventListener('click', ctrlDeleteList);
   };
 
   var ctrlAddTask = function() {
@@ -225,6 +273,7 @@ var controller = (function(tasksCtrl, UICtrl) {
     if(input.description) {
       // add task to tasks controller
       newTask = tasksCtrl.addTask(input.description, input.list);
+
       // add item to list UI and clear input
       UICtrl.addListTask(newTask);
       UICtrl.clearInput();
@@ -239,8 +288,10 @@ var controller = (function(tasksCtrl, UICtrl) {
     if(taskID) {
       splitID = taskID.split('-');
       id = parseInt(splitID[1]);
+
       // delete task from data
       tasksCtrl.deleteTask(id);
+
       // delete task from ui
       UICtrl.deleteListTask(taskID);
     }
@@ -251,10 +302,12 @@ var controller = (function(tasksCtrl, UICtrl) {
 
     // get input for new list
     input = UICtrl.getNewList();
+
     // check for new list input
     if(input) {
       // add list to data
       newList = tasksCtrl.addList(input);
+
       // add list to ui
       UICtrl.addListOption(newList);
     }
@@ -264,11 +317,12 @@ var controller = (function(tasksCtrl, UICtrl) {
     var DOM, listSelector, selectedList, tasks;
 
     DOM = UICtrl.getDOMstrings();
+
     listSelector = document.querySelector(DOM.listSelect);
     selectedList = listSelector.options[listSelector.selectedIndex].value;
 
     // set list header in ui
-    UICtrl.setList(selectedList);
+    UICtrl.setListHeader(selectedList);
 
     tasks = document.querySelectorAll(DOM.taskItem);
 
@@ -285,17 +339,23 @@ var controller = (function(tasksCtrl, UICtrl) {
       taskList = tasksCtrl.checkList(id);
 
       // display if matches list, hide if not
-      // should be ui function, but has to pass tasks[i] variable somehow
-      if(taskList === selectedList) {
-        tasks[i].style.display = 'block';
-      } else if(selectedList === 'All Tasks') {
-        tasks[i].style.display = 'block';
-      } else {
-        tasks[i].style.display = 'none';
-      }
+      UICtrl.filterTaskDisplay(taskList, selectedList, tasks[i]);
     }
-
   };
+
+  var ctrlDeleteList = function() {
+    var currentList;
+
+    // get name of current list
+    currentList = UICtrl.getCurrentList();
+    console.log(currentList);
+
+    // delete list from data structure
+    tasksCtrl.deleteList(currentList);
+
+    // remove list from ui
+
+  }
 
   // RETURNED PUBLIC FUNCTIONS
   return {
@@ -310,5 +370,8 @@ var controller = (function(tasksCtrl, UICtrl) {
 
 })(tasksController, UIController);
 
+
+////////////////////////////////////////////////
 // and then it go
+////////////////////////////////////////////////
 controller.init();

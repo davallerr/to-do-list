@@ -36,8 +36,7 @@ select {
 /* TOP SECTION */
 
 .top {
-  margin: 0 auto;
-  padding: 2rem 0;
+  margin: 2rem auto;
 }
 
 .top__header {
@@ -158,7 +157,7 @@ select {
   display: block;
   margin: .2rem 0;
   overflow: hidden;
-  padding: .7rem .5rem .8rem .5rem;
+  padding: .6rem .5rem .6rem .5rem;
   position: relative;
 }
 
@@ -168,7 +167,7 @@ select {
 
 .task__date {
   color: #888;
-  font-size: 1em;
+  font-size: .8em;
 }
 
 .task:hover {
