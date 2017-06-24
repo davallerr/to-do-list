@@ -101,13 +101,12 @@ var tasksController = (function() {
     deleteList: function(currentList) {
       var confirmListDelete, removeIDs, removeIndexes, removeTasks;
 
-      // WHAAAYAATATATEAOUDHEIOUHEOIUHE
-      /*
+
       // can't delete All Tasks list
       if(currentList !== 'All Tasks') {
         confirmListDelete = confirm('delete this list and all tasks therein?');
 
-        if(confirm) {
+        if(confirmListDelete) {
           // delete currentList in data
           delete data.lists[currentList];
 
@@ -119,19 +118,21 @@ var tasksController = (function() {
 
           console.log(removeTasks);
 
+          // can't track what it's deleting or why
+
           for(var i=removeTasks.length; i>=0; i--) {
             var removeIndex;
 
             if(removeTasks[i]) {
+              console.log('if returned true');
+              console.log(removeTasks[i]);
               removeIndex = removeTasks.indexOf(i);
               data.allTasks.splice(removeIndex, 1);
             }
           }
 
-
         }
       }
-      */
     },
 
     testing: function() {
