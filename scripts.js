@@ -72,8 +72,9 @@ var tasksController = (function() {
       if(allTasksIndex !== -1) {
         list = data.allTasks[allTasksIndex].list;
 
-        // create specific list indexes based off of task id
+        // create array of ids same length as data list array - indexes line up
         listIndexes = data.lists[list].map(function(current) { return current.id; });
+        console.log(listIndexes);
         listIndex = listIndexes.indexOf(id);
 
         // delete task from allTasks and specific list arrays
@@ -99,38 +100,33 @@ var tasksController = (function() {
     },
 
     deleteList: function(currentList) {
-      var confirmListDelete, removeIDs, removeIndexes, removeTasks;
+      var confirmListDelete, removeIDs;
 
-
-      // can't delete All Tasks list
+      // can't delete All Tasks list and confirm delete
       if(currentList !== 'All Tasks') {
         confirmListDelete = confirm('delete this list and all tasks therein?');
-
         if(confirmListDelete) {
           // delete currentList in data
           delete data.lists[currentList];
 
-          removeTasks = data.allTasks.map(function(item) {
+          // create array of ids to remove by checking their list
+          removeIDs = data.allTasks.map(function(item) {
             if(item.list === currentList) {
               return item.id;
             }
           });
 
-          console.log(removeTasks);
-
-          // can't track what it's deleting or why
-
-          for(var i=removeTasks.length; i>=0; i--) {
-            var removeIndex;
-
-            if(removeTasks[i]) {
-              console.log('if returned true');
-              console.log(removeTasks[i]);
-              removeIndex = removeTasks.indexOf(i);
-              data.allTasks.splice(removeIndex, 1);
+          // perform for each id that needs to be deleted
+          // goes through each task in allTasks and compares its id with id of task to be removed
+          for(var i=0; i<removeIDs.length; i++) {
+            if(removeIDs[i]) {
+              for(var j=0; j<data.allTasks.length; j++) {
+                if(removeIDs[i] === data.allTasks[j].id) {
+                  data.allTasks.splice(j, 1);
+                }
+              }
             }
           }
-
         }
       }
     },
