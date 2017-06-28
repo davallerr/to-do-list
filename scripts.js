@@ -222,12 +222,13 @@ var UIController = (function() {
       options = select.options;
 
       for(var i=0; i<select.length; i++ ) {
-        console.log(options[i]);
         if(options[i].value === listSelect) {
           select.selectedIndex = i;
           break;
         }
       }
+
+      document.querySelector(DOMstrings.inputDescription).focus();
     },
 
     clearTasksDisplay: function(selectedList) {
@@ -253,10 +254,26 @@ var UIController = (function() {
       return document.querySelector(DOMstrings.currentList).textContent;
     },
 
-    deleteListUpdateTasks: function(deleteList) {
+    updateLists: function(deleteList) {
+      var options, select;
+
+      select = document.querySelector(DOMstrings.listSelect);
+      options = select.options;
+
       // remove dropdown option
-      // remove tasks from allTasks display
+      for(var i=0; i<select.length; i++ ) {
+        if(options[i].value === deleteList) {
+          select.remove(select.selectedIndex);
+          break;
+        }
+      }
+
+      // remove task divs from tasks list
+
+
       // set view to allTasks
+      select.selectedIndex = 0;
+
     },
 
     getDOMstrings: function() {
