@@ -215,6 +215,30 @@ var UIController = (function() {
       document.querySelector(DOMstrings.currentList).textContent = selectedList;
     },
 
+    setListSelect: function(listSelect) {
+      var options, select;
+
+      select = document.querySelector(DOMstrings.listSelect);
+      options = select.options;
+
+      for(var i=0; i<select.length; i++ ) {
+        console.log(options[i]);
+        if(options[i].value === listSelect) {
+          select.selectedIndex = i;
+          break;
+        }
+      }
+    },
+
+    clearTasksDisplay: function(selectedList) {
+      var tasks;
+      tasks = document.querySelectorAll(DOMstrings.taskItem);
+
+      for(var i=0; i<tasks.length; i++) {
+        tasks[i].style.display = 'none';
+      }
+    },
+
     filterTaskDisplay: function(taskList, selectedList, checkTask) {
       if(taskList === selectedList) {
         checkTask.style.display = 'block';
@@ -227,6 +251,12 @@ var UIController = (function() {
 
     getCurrentList: function() {
       return document.querySelector(DOMstrings.currentList).textContent;
+    },
+
+    deleteListUpdateTasks: function(deleteList) {
+      // remove dropdown option
+      // remove tasks from allTasks display
+      // set view to allTasks
     },
 
     getDOMstrings: function() {
@@ -307,11 +337,16 @@ var controller = (function(tasksCtrl, UICtrl) {
 
       // add list to ui
       UICtrl.addListOption(newList);
+      UICtrl.setListHeader(newList);
+      UICtrl.clearTasksDisplay();
+
+      // set dropdown to new list
+      UICtrl.setListSelect(newList);
     }
   };
 
   var ctrlSetList = function() {
-    var DOM, listSelector, selectedList, tasks;
+    var DOM, listSelector, selectedList, taskList, tasks;
 
     DOM = UICtrl.getDOMstrings();
 
@@ -351,7 +386,7 @@ var controller = (function(tasksCtrl, UICtrl) {
     tasksCtrl.deleteList(currentList);
 
     // remove list from ui
-
+    UICtrl.updateLists(currentList);
   }
 
   // RETURNED PUBLIC FUNCTIONS
