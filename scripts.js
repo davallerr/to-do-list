@@ -1,10 +1,27 @@
 // to-do list web app
 
-////////////////////////////////////////////////
-////////////////////////////////////////////////
+/*
+
+KNOWN ISSUES
+•   task filter not working correctly after list delete
+•   super long list names screw up layout
+•   no restrictions on code as input
+•   proper list/tasks display after list delete not working
+
+HOPES AND DREAMS
+•   input of existing list simply sets it as active
+•   due dates
+•   reminders
+•   list folders
+
+*/
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////
 // TASKS CONTROLLER
-////////////////////////////////////////////////
-////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////
 var tasksController = (function() {
 
   // prototype task object
@@ -102,28 +119,26 @@ var tasksController = (function() {
     deleteList: function(currentList) {
       var confirmListDelete, removeIDs;
 
-      // can't delete All Tasks list and confirm delete
-      if(currentList !== 'All Tasks') {
-        confirmListDelete = confirm('delete this list and all tasks therein?');
-        if(confirmListDelete) {
-          // delete currentList in data
-          delete data.lists[currentList];
+      confirmListDelete = confirm('delete this list and all tasks therein?');
 
-          // create array of ids to remove by checking their list
-          removeIDs = data.allTasks.map(function(item) {
-            if(item.list === currentList) {
-              return item.id;
-            }
-          });
+      if(confirmListDelete) {
+        // delete currentList in data
+        delete data.lists[currentList];
 
-          // perform for each id that needs to be deleted
-          // goes through each task in allTasks and compares its id with id of task to be removed
-          for(var i=0; i<removeIDs.length; i++) {
-            if(removeIDs[i]) {
-              for(var j=0; j<data.allTasks.length; j++) {
-                if(removeIDs[i] === data.allTasks[j].id) {
-                  data.allTasks.splice(j, 1);
-                }
+        // create array of ids to remove by checking their list
+        removeIDs = data.allTasks.map(function(item) {
+          if(item.list === currentList) {
+            return item.id;
+          }
+        });
+
+        // perform for each id that needs to be deleted
+        // goes through each task in allTasks and compares its id with id of task to be removed
+        for(var i=0; i<removeIDs.length; i++) {
+          if(removeIDs[i]) {
+            for(var j=0; j<data.allTasks.length; j++) {
+              if(removeIDs[i] === data.allTasks[j].id) {
+                data.allTasks.splice(j, 1);
               }
             }
           }
@@ -140,11 +155,11 @@ var tasksController = (function() {
 })();
 
 
-////////////////////////////////////////////////
-////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////
 // UI CONTROLLER
-////////////////////////////////////////////////
-////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////
 var UIController = (function() {
 
   var DOMstrings = {
@@ -197,8 +212,19 @@ var UIController = (function() {
     },
 
     getNewList: function() {
-      var newList;
+      var existingLists, newList;
+
+      existingLists = Array.prototype.slice.call(document.querySelectorAll(DOMstrings.listOption));
       newList = prompt('name your new list');
+
+      // prevent duplicate lists
+      for(var i=0; i<existingLists.length; i++) {
+        if(newList === existingLists[i].textContent) {
+          alert('list already exists');
+          return false;
+        }
+      }
+
       return newList;
     },
 
@@ -284,11 +310,11 @@ var UIController = (function() {
 
 })();
 
-////////////////////////////////////////////////
-////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////
 // APP CONTROLLER
-////////////////////////////////////////////////
-////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////
 var controller = (function(tasksCtrl, UICtrl) {
 
   var setupListeners = function() {
@@ -399,11 +425,14 @@ var controller = (function(tasksCtrl, UICtrl) {
     currentList = UICtrl.getCurrentList();
     console.log(currentList);
 
-    // delete list from data structure
-    tasksCtrl.deleteList(currentList);
+    // check list to delete isn't All Tasks
+    if(currentList !== 'All Tasks') {
+      // delete list from data structure
+      tasksCtrl.deleteList(currentList);
 
-    // remove list from ui
-    UICtrl.updateLists(currentList);
+      // remove list from ui
+      UICtrl.updateLists(currentList);
+    }
   }
 
   // RETURNED PUBLIC FUNCTIONS
