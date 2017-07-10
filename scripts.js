@@ -6,13 +6,16 @@ KNOWN ISSUES
 •   task filter not working correctly after list delete
 •   super long list names screw up layout
 •   no restrictions on code as input
-•   proper list/tasks display after list delete not working
 
 HOPES AND DREAMS
 •   input of existing list simply sets it as active
 •   due dates
 •   reminders
 •   list folders
+
+THOUGHTS
+•   UI: html should be generated anew for every filter or view change
+    rather than changing display properties
 
 */
 
@@ -150,7 +153,7 @@ var tasksController = (function() {
       console.log(data);
     }
 
-  };
+  }
 
 })();
 
@@ -294,12 +297,8 @@ var UIController = (function() {
         }
       }
 
-      // remove task divs from tasks list
-
-
-      // set view to allTasks
+      // set select to allTasks
       select.selectedIndex = 0;
-
     },
 
     getDOMstrings: function() {
@@ -398,6 +397,7 @@ var controller = (function(tasksCtrl, UICtrl) {
 
     // set list header in ui
     UICtrl.setListHeader(selectedList);
+    UICtrl.clearInput();
 
     tasks = document.querySelectorAll(DOM.taskItem);
 
