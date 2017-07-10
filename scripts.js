@@ -3,19 +3,15 @@
 /*
 
 KNOWN ISSUES
-•   task filter not working correctly after list delete
-•   super long list names screw up layout
-•   no restrictions on code as input
+• super long list names screw up layout
+• no restrictions on code as input
 
 HOPES AND DREAMS
-•   input of existing list simply sets it as active
-•   due dates
-•   reminders
-•   list folders
-
-THOUGHTS
-•   UI: html should be generated anew for every filter or view change
-    rather than changing display properties
+• input of existing list simply sets it as active
+• due dates
+• reminders
+• list folders
+• change task's list after creation
 
 */
 
@@ -64,6 +60,11 @@ var tasksController = (function() {
   // RETURNED PUBLIC FUNCTIONS
   return {
 
+    addList: function(newList) {
+      data.lists[newList] = [];
+      return newList;
+    },
+
     addTask: function(des, list) {
       var date, id, newTask;
 
@@ -80,32 +81,6 @@ var tasksController = (function() {
       data.idBank++;
 
       return newTask;
-    },
-
-    deleteTask: function(id) {
-      var allTasksIndex, ids, list, listIndex, listIndexes;
-
-      // create allTasks indexes based off of task id
-      ids = data.allTasks.map(function(current) { return current.id; });
-      allTasksIndex = ids.indexOf(id);
-
-      if(allTasksIndex !== -1) {
-        list = data.allTasks[allTasksIndex].list;
-
-        // create array of ids same length as data list array - indexes line up
-        listIndexes = data.lists[list].map(function(current) { return current.id; });
-        console.log(listIndexes);
-        listIndex = listIndexes.indexOf(id);
-
-        // delete task from allTasks and specific list arrays
-        data.allTasks.splice(allTasksIndex, 1);
-        data.lists[list].splice(listIndex, 1);
-      }
-    },
-
-    addList: function(newList) {
-      data.lists[newList] = [];
-      return newList;
     },
 
     checkList: function(id) {
@@ -149,6 +124,34 @@ var tasksController = (function() {
       }
     },
 
+    deleteTask: function(id) {
+      var allTasksIndex, ids, list, listIndex, listIndexes;
+
+      // create allTasks indexes based off of task id
+      ids = data.allTasks.map(function(current) { return current.id; });
+      allTasksIndex = ids.indexOf(id);
+
+      if(allTasksIndex !== -1) {
+        list = data.allTasks[allTasksIndex].list;
+
+        // create array of ids same length as data list array - indexes line up
+        listIndexes = data.lists[list].map(function(current) { return current.id; });
+        console.log(listIndexes);
+        listIndex = listIndexes.indexOf(id);
+
+        // delete task from allTasks and specific list arrays
+        data.allTasks.splice(allTasksIndex, 1);
+        data.lists[list].splice(listIndex, 1);
+      }
+    },
+
+    matchByList: function(currentList) {
+      if(currentList === 'All Tasks') {
+        return data.allTasks;
+      }
+      return data.lists[currentList];
+    },
+
     testing: function() {
       console.log(data);
     }
@@ -180,11 +183,13 @@ var UIController = (function() {
   // RETURNED PUBLIC FUNCTIONS
   return {
 
-    getInput: function() {
-      return {
-        list: document.querySelector(DOMstrings.currentList).innerHTML,
-        description: document.querySelector(DOMstrings.inputDescription).value
-      };
+    addListOption: function(newList) {
+      var html, newHtml;
+
+      html = "<option class='top__list-option'>%list%</option>";
+      newHtml = html.replace('%list%', newList);
+
+      document.querySelector(DOMstrings.listSelect).insertAdjacentHTML('beforeend', newHtml);
     },
 
     addListTask: function(obj) {
@@ -209,9 +214,28 @@ var UIController = (function() {
       document.querySelector(DOMstrings.inputDescription).focus();
     },
 
+    clearTasksDisplay: function(selectedList) {
+      document.querySelector(DOMstrings.tasksList).innerHTML = '';
+    },
+
     deleteListTask: function(selectorID) {
       var el = document.getElementById(selectorID);
       el.parentNode.removeChild(el);
+    },
+
+    getCurrentList: function() {
+      return document.querySelector(DOMstrings.listSelect).value;
+    },
+
+    getDOMstrings: function() {
+      return DOMstrings;
+    },
+
+    getInput: function() {
+      return {
+        list: document.querySelector(DOMstrings.currentList).innerHTML,
+        description: document.querySelector(DOMstrings.inputDescription).value
+      };
     },
 
     getNewList: function() {
@@ -231,13 +255,8 @@ var UIController = (function() {
       return newList;
     },
 
-    addListOption: function(newList) {
-      var html, newHtml;
-
-      html = "<option class='top__list-option'>%list%</option>";
-      newHtml = html.replace('%list%', newList);
-
-      document.querySelector(DOMstrings.listSelect).insertAdjacentHTML('beforeend', newHtml);
+    setFocus: function(focusEl) {
+      document.querySelector(DOMstrings[focusEl]).focus();
     },
 
     setListHeader: function(selectedList) {
@@ -260,29 +279,6 @@ var UIController = (function() {
       document.querySelector(DOMstrings.inputDescription).focus();
     },
 
-    clearTasksDisplay: function(selectedList) {
-      var tasks;
-      tasks = document.querySelectorAll(DOMstrings.taskItem);
-
-      for(var i=0; i<tasks.length; i++) {
-        tasks[i].style.display = 'none';
-      }
-    },
-
-    filterTaskDisplay: function(taskList, selectedList, checkTask) {
-      if(taskList === selectedList) {
-        checkTask.style.display = 'block';
-      } else if(selectedList === 'All Tasks') {
-        checkTask.style.display = 'block';
-      } else {
-        checkTask.style.display = 'none';
-      }
-    },
-
-    getCurrentList: function() {
-      return document.querySelector(DOMstrings.currentList).textContent;
-    },
-
     updateLists: function(deleteList) {
       var options, select;
 
@@ -299,15 +295,12 @@ var UIController = (function() {
 
       // set select to allTasks
       select.selectedIndex = 0;
-    },
-
-    getDOMstrings: function() {
-      return DOMstrings;
     }
 
   };
 
 })();
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -343,7 +336,7 @@ var controller = (function(tasksCtrl, UICtrl) {
       // add task to tasks controller
       newTask = tasksCtrl.addTask(input.description, input.list);
 
-      // add item to list UI and clear input
+      // add item to list ui and clear input
       UICtrl.addListTask(newTask);
       UICtrl.clearInput();
     }
@@ -388,42 +381,30 @@ var controller = (function(tasksCtrl, UICtrl) {
   };
 
   var ctrlSetList = function() {
-    var DOM, listSelector, selectedList, taskList, tasks;
+    var listSelect, matchTasks;
 
-    DOM = UICtrl.getDOMstrings();
+    // get list selected from ui, set as header, empty task list in ui
+    listSelect = UICtrl.getCurrentList();
+    UICtrl.setListHeader(listSelect);
+    UICtrl.clearTasksDisplay();
 
-    listSelector = document.querySelector(DOM.listSelect);
-    selectedList = listSelector.options[listSelector.selectedIndex].value;
+    // get array of tasks matching selected list
+    matchTasks = tasksCtrl.matchByList(listSelect);
 
-    // set list header in ui
-    UICtrl.setListHeader(selectedList);
-    UICtrl.clearInput();
-
-    tasks = document.querySelectorAll(DOM.taskItem);
-
-    // loop through each task element
-    for(var i=0; i<tasks.length; i++) {
-      var tagID, splitID, id;
-
-      // pull id from task
-      tagID = tasks[i].id;
-      splitID = tagID.split('-');
-      id = parseInt(splitID[1]);
-
-      // identify list of task
-      taskList = tasksCtrl.checkList(id);
-
-      // display if matches list, hide if not
-      UICtrl.filterTaskDisplay(taskList, selectedList, tasks[i]);
+    // fill with matching tasks
+    for(var i=0; i<matchTasks.length; i++) {
+      UICtrl.addListTask(matchTasks[i]);
     }
+
+    // set focus to task input
+    UICtrl.setFocus('inputDescription');
   };
 
   var ctrlDeleteList = function() {
-    var currentList;
+    var allTasks, currentList;
 
     // get name of current list
     currentList = UICtrl.getCurrentList();
-    console.log(currentList);
 
     // check list to delete isn't All Tasks
     if(currentList !== 'All Tasks') {
@@ -432,8 +413,16 @@ var controller = (function(tasksCtrl, UICtrl) {
 
       // remove list from ui
       UICtrl.updateLists(currentList);
+
+      // clear tasks list in ui and set display to all tasks
+      UICtrl.clearTasksDisplay();
+      allTasks = tasksCtrl.matchByList('All Tasks');
+
+      for(var i=0; i<allTasks.length; i++) {
+        UICtrl.addListTask(allTasks[i]);
+      }
     }
-  }
+  };
 
   // RETURNED PUBLIC FUNCTIONS
   return {
