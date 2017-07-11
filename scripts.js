@@ -136,7 +136,6 @@ var tasksController = (function() {
 
         // create array of ids same length as data list array - indexes line up
         listIndexes = data.lists[list].map(function(current) { return current.id; });
-        console.log(listIndexes);
         listIndex = listIndexes.indexOf(id);
 
         // delete task from allTasks and specific list arrays
